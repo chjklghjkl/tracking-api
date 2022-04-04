@@ -1,0 +1,365 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+use App\Models\Teams;
+use App\Http\Controllers\Controller;
+Use App\Models\Department;
+Use App\Models\Userteam;
+use App\Models\Capture;
+Use App\Models\Staff;
+use Illuminate\Http\Request;
+use Validator;
+
+class TeamController extends Controller
+{
+    //
+    
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * 
+     */
+	  function __construct()
+
+    {
+
+         $this->middleware('permission:Role add', ['only' => ['addstaff']]);
+        
+        
+
+        
+
+
+    }
+    public function addstaff(Request $request){
+
+        if ($request->isMethod('post')) {
+        
+          
+            $user = $request->user();
+
+            $validator = Validator::make($request->all(), [ 
+        
+                 'staff' => 'required',
+        
+             ]);  
+            if ($validator->fails()) {          
+              return response()->json(['status'=>0,'message'=>'error','error'=>$validator->errors()], 401);                        
+            }  
+            
+            $staff=Staff::where('staff',$request->staff)->first();
+
+            if(isset($staff)){
+               
+                return response()->json(['status'=>0,'message'=>'error','error'=>'Staff already exist']);                        
+            }
+            
+           else{
+                 
+                $staff = new Staff;
+                $staff->staff = $request->staff;
+               $staff->save();
+                return response()->json(['status'=>1,'success'=>'Added Staff']);                        
+            }
+    }
+}
+    public function getcapture(Request $request){
+        $user = $request->user();
+        $capture = Capture::get();
+        if($capture){
+        return response()->json([
+            'status'=> 1,
+            'message' => "Success",
+            'result' => $capture,
+        ]);
+       }
+       else{
+        return response()->json([
+            'status'=> 0,
+            'message' => "No Data found",
+            'error' => $capture,
+        ]);
+       }
+    }
+    public function getstaff(Request $request){
+        $user = $request->user();
+        $staff = Staff::get();
+        if($staff){
+        return response()->json([
+            'status'=> 1,
+            'message' => "Success",
+            'result' => $staff,
+        ]);
+       }
+       else{
+        return response()->json([
+            'status'=> 0,
+            'message' => "No Data found",
+            'error' => $staff,
+        ]);
+       }
+
+    }
+    public function getdepartment(Request $request){
+        $user = $request->user();
+        $department = Department::get();
+        if($department){
+        return response()->json([
+            'status'=> 1,
+            'message' => "Success",
+            'result' => $department,
+        ]);
+       }
+       else{
+        return response()->json([
+            'status'=> 0,
+            'message' => "No Data found",
+            'error' => $department,
+        ]);
+       }
+    }
+    public function editdepartment(Request $request){
+        $user = $request->user();
+        $department = department::where('id', $request->id)->first();
+        
+        $validator = Validator::make($request->all(), 
+        [ 
+        'id'=>'required',
+        'department' => 'required',
+        
+       ]);  
+        if($department){
+            $department->id = $department->id;
+            $department->department =$request->department;
+            $department->save();
+        
+           return response()->json([
+            "status"=>1,
+            'message' => "Department Updated.",
+             ]);
+        }
+        if ($validator->fails()) {          
+            return response()->json(['status'=>0,'message'=>'error','error'=>$validator->errors()], 401);                        
+        }  
+        else{
+            return response()->json([
+                "error"=>0,
+                'message' => "Department id Not Found.",
+                 ]); 
+        }
+
+
+
+    }
+    public function adddepartment(Request $request){
+
+        if ($request->isMethod('post')) {
+        
+          
+            $user = $request->user();
+
+            $validator = Validator::make($request->all(), [ 
+        
+                 'department' => 'required',
+        
+             ]);  
+            if ($validator->fails()) {          
+              return response()->json(['status'=>0,'message'=>'error','error'=>$validator->errors()], 401);                        
+            }  
+            
+            $department=Department::where('department',$request->department)->first();
+
+            if(isset($department)){
+               
+                return response()->json(['status'=>0,'message'=>'error','error'=>'Department already exist']);                        
+            }
+            
+           else{
+                 
+                $department = new Department;
+                $department->department = $request->department;
+               $department->save();
+                return response()->json(['status'=>1,'success'=>'Added Department']);                        
+            }
+    }
+}
+    public function deletecapture($id,Request $request){
+      
+        $user = $request->user();
+        
+        $capture = Capture::where('id', $id)->first();
+        
+       if($capture){
+        $capture->delete();
+        return response()->json(['status'=>1,'success'=>'capture deleted succcessfully']);                        
+       }
+       else{
+        return response()->json(['status'=>0,'message'=>'error','error'=>'capture not deleted']);                      
+       }
+    }
+    
+    public function departmentdelete($id,Request $request){
+        $user = $request->user();
+        
+        $department = Department::where('id', $id)->first();
+        
+       if($department){
+        $department->delete();
+        return response()->json(['status'=>1,'success'=>'Department deleted succcessfully']);                        
+       }
+       else{
+        return response()->json(['status'=>0,'message'=>'error','error'=>'Department not deleted']);                      
+       }
+
+    }
+    public function editcapture(Request $request){
+        $user = $request->user();
+        $capture = Capture::where('id', $request->id)->first();
+        
+        $validator = Validator::make($request->all(), 
+        [ 
+        'id'=>'required',
+        'name' => 'required',
+        
+       ]);  
+        if($capture){
+            $capture->id = $request->id;
+            $capture->name =$request->name;
+            $capture->save();
+        
+           return response()->json([
+            "status"=>1,
+            'message' => "Capture Updated.",
+             ]);
+        }
+        if ($validator->fails()) {          
+            return response()->json(['status'=>0,'message'=>'error','error'=>$validator->errors()], 401);                        
+        }  
+        else{
+            return response()->json([
+                "error"=>0,
+                'message' => "Capture id Not Found.",
+                 ]); 
+        }
+
+
+
+    }
+    public function addcapture(Request $request){
+        if ($request->isMethod('post')) {
+        
+            $user = $request->user();
+            $validator = Validator::make($request->all(), 
+            [ 
+            'name' => 'required',
+            
+           ]);  
+            
+           if ($validator->fails()) {          
+            return response()->json(['status'=>0,'message'=>'error','error'=>$validator->errors()], 401);                        
+         }  
+           
+            
+            $capture=Capture::where('name',$request->name)->first();
+
+            if(isset($capture)){
+                return response()->json(['status'=>0,'message'=>'error','error'=>"capture Already Added"], 401);                        
+                
+            }
+            
+           else{
+                 
+                $capture = new Capture;
+                
+                
+                $capture->name = $request->name;
+               
+				
+                $capture->save();
+				return response()->json([
+                    "status"=>1,
+                    'message' => "Capture Added.",
+                ]);
+            }
+        }
+    }
+    
+     public function teams(Request $request){
+        
+        $user = $request->user();
+        $validator = Validator::make($request->all(), 
+        [ 
+        'team_id' => 'required',
+        'user_id' => 'required',
+       ]);  
+       $userteam = Userteam::where('team_id',$request->team_id)->first();
+       if($userteam){
+        return response()->json([
+            "status"=>'0',
+            'message'=>'error',
+            'error' => "Teamid Already add.",
+        ]);
+       }
+
+    if ($validator->fails()) {          
+       return response()->json(['status'=>0,'message'=>'error','error'=>$validator->errors()], 401);                        
+    }  
+        Userteam::create([
+            'team_id'=>$request->team_id,
+            
+            'user_id'=>$request->user_id,
+            
+        ]);
+        return response()->json([
+            "status"=>1,
+            'message' => "Teammember Added.",
+        ]);
+     }
+    public function addteam(Request $request)
+    {
+        //dd($request->All());
+        $user = $request->user();
+        $validator = Validator::make($request->all(), 
+        [ 
+        
+        'phoneno' => 'required',
+        'captchaid'=> 'required',
+        'deptid'=>'required',
+        'teamname'=>'required',
+        'staffid'=>'required'
+       ]);  
+       if ($validator->fails()) {          
+        return response()->json(['status'=>0,'message'=>'error','error'=>$validator->errors()]);                        
+     }  
+        //dd($user);
+        $existing_team = Teams::where('teamname',$request->teamname)->first();
+        
+        if($existing_team)
+        {
+            return response()->json([
+                "status"=>'0',
+                'message'=>'error',
+                'message' => "Team Already add.",
+            ]);
+        }
+        if($request->phoneno){
+        Teams::create([
+            'created_by' => $user->id,
+            'phoneno'=>$request->phoneno,
+            'captchaid' => json_encode($request->captchaid),
+            'deptid' => $request->deptid,
+            'teamname' => $request->teamname,
+            'staffid'=>$request->staffid,
+
+        ]);
+
+        return response()->json([
+            'message' => "Team Added.",
+        ]);
+    }
+        if(!$user){ 
+            return response()->json(['error'=>'Unauthorised'], 401); 
+        } 
+    }
+
+}

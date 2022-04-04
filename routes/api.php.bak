@@ -1,0 +1,78 @@
+<?php
+
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\TimesheetController;
+use App\Http\Controllers\Api\TeamController;
+use App\Http\Controllers\Api\UserController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register API routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| is assigned the "api" middleware group. Enjoy building your API!
+|
+*/
+
+/* Auth Routes */
+
+
+   
+    
+Route::prefix('user')->group(function () {
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+});
+
+/* Auth Routes */
+
+
+
+/* User Routes */
+
+Route::prefix('user')->middleware('auth:sanctum')->group(function () {
+
+    Route::get('/me', [UserController::class, 'me']);
+
+});
+Route::prefix('user')->middleware('auth:sanctum')->group(function () {
+
+    Route::get('/roledetails', [UserController::class, 'roledetails']);
+
+});
+
+
+Route::prefix('timesheet')->middleware('auth:sanctum')->group(function () {
+
+    Route::get('/', [TimesheetController::class, 'getTimeSheet']);
+    Route::post('/start', [TimesheetController::class, 'startTracking']);
+    Route::post('/stop', [TimesheetController::class, 'endTracking']);
+
+
+});
+
+Route::prefix('team')->middleware('auth:sanctum')->middleware('permission:Role add', ['only' => ['users']])->group(function(){
+
+    Route::post('/addteam',[TeamController::class,'addteam']);
+	Route::post('/teams',[TeamController::class,'teams']);
+    Route::post('/addcapture',[TeamController::class,'addcapture']);
+    Route::post('/editcapture',[TeamController::class,'editcapture']);
+    Route::get('/getcapture',[TeamController::class,'getcapture']);
+    Route::get('/deletecapture/{id}',[TeamController::class,'deletecapture']);
+    Route::post('/adddepartment',[TeamController::class, 'adddepartment']);
+    Route::get('/getdepartment',[TeamController::class, 'getdepartment']);
+    Route::Post('/editdepartment',[TeamController::class, 'editdepartment']);
+    Route::get('/departmentdelete/{id}',[TeamController::class, 'departmentdelete']);
+    Route::post('/addstaff', [TeamController::class, 'addstaff']);
+    Route::get('/getstaff',[TeamController::class,'getstaff']);
+
+
+});
+
+
+/* User Routes */
+
