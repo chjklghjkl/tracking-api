@@ -71,7 +71,7 @@ class TeamController extends Controller
         $user = $request->user();
         $data =[];
         if($user->hasRole('user')){
-            $attendance = Attendance::with('users')->where('employee_id',$user->id)->first();
+            $attendance = Attendance::with('users')->where('employee_id',$user->id)->get();
             //$no_of_hours = Attendance::whereDate('attendance_date',Carbon::now())
             //->selectRaw('time(sum(TIMEDIFF( in_time,out_time ))) as total')
            // ->get();
@@ -102,7 +102,7 @@ class TeamController extends Controller
             
         }
         else{
-            $attendance = Attendance::with('users')->whereDate('attendance_date',Carbon::now())->first();
+            $attendance = Attendance::with('users')->whereDate('attendance_date',Carbon::now())->get();
             $data =[];
            // $no_of_hours = Attendance::whereDate('attendance_date',Carbon::now())
         //->selectRaw('time(sum(TIMEDIFF( in_time,out_time ))) as total')
